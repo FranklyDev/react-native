@@ -35,8 +35,7 @@ public class CustomLineHeightSpan implements LineHeightSpan {
       fm.bottom = fm.descent = 0;
     } else if (-fm.ascent + fm.descent > mHeight) {
       // Show all ascent, and as much descent as possible
-      fm.top = fm.ascent;
-      fm.bottom = fm.descent = mHeight + fm.ascent;
+      fm.top = fm.bottom - mHeight;
     } else if (-fm.ascent + fm.bottom > mHeight) {
       // Show all ascent, descent, as much bottom as possible
       fm.top = fm.ascent;
