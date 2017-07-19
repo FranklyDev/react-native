@@ -18,9 +18,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.X509TrustManager;
 
 import okhttp3.ConnectionSpec;
 import okhttp3.OkHttpClient;
@@ -34,9 +31,6 @@ public class OkHttpClientProvider {
 
   // Centralized OkHttpClient for all networking requests.
   private static @Nullable OkHttpClient sClient;
-  private static @Nullable SSLSocketFactory sslSocketFactory;
-  private static @Nullable X509TrustManager trustManager;
-  private static @Nullable HostnameVerifier hostnameVerifier;
 
   public static OkHttpClient getOkHttpClient() {
     if (sClient == null) {
@@ -44,7 +38,7 @@ public class OkHttpClientProvider {
     }
     return sClient;
   }
-
+  
   // okhttp3 OkHttpClient is immutable
   // This allows app to init an OkHttpClient with custom settings.
   public static void replaceOkHttpClient(OkHttpClient client) {
@@ -59,10 +53,7 @@ public class OkHttpClientProvider {
       .writeTimeout(0, TimeUnit.MILLISECONDS)
       .cookieJar(new ReactCookieJarContainer());
 
-    client = enableTls12OnPreLollipop(client);
-
-    return addClientHttpsProperties(client)
-      .build();
+    return enableTls12OnPreLollipop(client).build();
   }
 
   /*
@@ -93,24 +84,4 @@ public class OkHttpClientProvider {
     return client;
   }
 
-  public static OkHttpClient.Builder addClientHttpsProperties(OkHttpClient.Builder client) {
-
-    if(sslSocketFactory != null && trustManager != null) {
-      client.sslSocketFactory(sslSocketFactory, trustManager);
-    }
-
-    if(hostnameVerifier != null) {
-      client.hostnameVerifier(hostnameVerifier);
-    }
-
-    return client;
-  }
-
-  public static void setClientHttpsProperties(SSLSocketFactory sslSocketFactory,
-                                               X509TrustManager trustManager,
-                                               HostnameVerifier hostnameVerifier) {
-    OkHttpClientProvider.sslSocketFactory = sslSocketFactory;
-    OkHttpClientProvider.trustManager = trustManager;
-    OkHttpClientProvider.hostnameVerifier = hostnameVerifier;
-  }
 }
